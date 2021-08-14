@@ -3,7 +3,7 @@
 // instructions minimal for mux
 
 `define AND 4'd0
-`define EOR 4'd1
+`define XOR 4'd1
 `define SUB 4'd2
 `define RSB 4'd3
 `define ADD 4'd4
@@ -19,16 +19,16 @@
 `define BIC 4'd14
 `define MVN 4'd15
 
-module ALUop(opc, op_1, op_2, res, nczv, c_shifter);
+module ALU(opc, op1, op2, res, nzcv, c_shifter);
 
-    parameter N = 32
+    parameter N = 32;
 
-    input [N-1:0] op_1, op_2;
+    input [N-1:0] op1, op2;
     input [3:0] opc;
     input c_shifter;
 
-    reg [N-1:o] res;
-    reg [3:0] nczv;
+    output reg [N-1:0] res;
+    output reg [3:0] nzcv;
 
     reg cin, cout;
 
@@ -37,8 +37,17 @@ module ALUop(opc, op_1, op_2, res, nczv, c_shifter);
         `AND: begin
             res = op1 & op2;
             nzcv[1] = c_shifter;
-
         end
+        `XOR: begin
+            res = op1 ^ op2;
+            nzcv[1] = c_shifter;
+        end
+        `SUB: begin
+            {cout, res} = op1 - op2 + cin;
+            nzcv[1] = cout;
+            nzcv[0] = cin^cout;
+        end
+        endcase
     end
 
 endmodule
